@@ -109,8 +109,14 @@ The test.py python file contains the parameters used to run the experiments.
 ## Important Warning
 This implementation is intended as a proof-of-concept prototype only! The code was implemented for research purposes and has not been vetted by security experts. As such, no portion of the code should be used in any real-world or production setting!
 
+
+## Acknowledgements 
+* Simon Langowski is a co-contributor to the implementation. 
+* Parts of the DPF code are based on the C implementation of the [Dory](https://github.com/ucbrise/dory/tree/master/src/c) system.
+
+
 ## License
-Copyright © 2021 Sacha Servan-Schreiber
+Copyright © 2021 Sacha Servan-Schreiber and Simon Langowski 
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
