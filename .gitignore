@@ -1,0 +1,14 @@
+bin
+cache
+*__pycache__
+cmd/client/client
+cmd/server/server
+experiments/main
+results
+*.csv
+*.json
+*.pdf
+*.o
+*.a
+pir/dpfc/src/test
+*.prof
