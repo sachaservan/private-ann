@@ -12,3 +12,4 @@ results
 *.a
 pir/dpfc/src/test
 *.prof
+*.DS_store
