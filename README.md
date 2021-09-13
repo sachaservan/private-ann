@@ -35,7 +35,7 @@ Each script will cycle through all experimental configurations (e.g., number of 
 #### On each server machine
 1. Compile the C DPF library which is used by the Go code. 
 ```
-cd ~/go/src/privsim/pir/dpfc/src
+cd ~/go/src/private-ann/pir/dpfc/src
 make
 ```
 
@@ -45,7 +45,7 @@ make
 export CC=clang-12
 ```
 
-3. Download and process the datasets, placing each dataset into ```~/go/src/privsim/datasets/```.
+3. Download and process the datasets, placing each dataset into ```~/go/src/private-ann/datasets/```.
 
 
 #### On server machine A
