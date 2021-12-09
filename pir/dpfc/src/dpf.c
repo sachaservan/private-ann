@@ -248,15 +248,15 @@ void batchEvalDPF(
 	// inputs we can cache the first X layers of the tree to avoid
 	// evaluating the PRG again 
 	int numCacheLayers = 20;
-	int numCachedSeeds = (1 << numCacheLayers);
-	uint128_t *cachedSeeds = malloc(numCachedSeeds * sizeof(uint128_t)); 
-	int *cachedBits = malloc(numCachedSeeds * sizeof(int)); 
+	int numCached = (1 << numCacheLayers);
+	uint128_t *cachedSeeds = malloc(numCached * sizeof(uint128_t)); 
+	int *cachedBits = malloc(numCached * sizeof(int)); 
 	fullDomainDPF(ctx, numCacheLayers, b, k, cachedSeeds, cachedBits);
 		
 	// outter loop: iterate over all evaluation points 
 	for (int l = 0; l < inl; l++) { 
 
-		int idx = in[l] >> (size - numCacheLayers);
+		uint64_t idx = (in[l] >> (size - numCacheLayers)) & (numCached - 1);
 		seeds[numCacheLayers] = cachedSeeds[idx];
 		bits[numCacheLayers] = cachedBits[idx];
 
