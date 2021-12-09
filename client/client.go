@@ -94,7 +94,8 @@ func (client *Client) InitSession() {
 // PrivateANNQuery privately retrieves the values in buckets with associated keys
 // keys from each table and returns the first non-zero candidate.
 // keys: (NumTables, NumProbes) array keys to probe in each table
-func (client *Client) PrivateANNQuery(keys [][]uint64) int {
+// keywordBits: size of each keyword (DPF bits)
+func (client *Client) PrivateANNQuery(keys [][]uint64, hashKeyBits uint) int {
 
 	var wg sync.WaitGroup
 
@@ -115,8 +116,8 @@ func (client *Client) PrivateANNQuery(keys [][]uint64) int {
 			qB := make([]*pir.QueryShare, len(keys[tableIndex]))
 
 			bucketDbmd := client.SessionParams.TableBucketMetadata[tableIndex]
-			for k := range keys[tableIndex] {
-				q := bucketDbmd.NewKeywordQueryShares(k, 2)
+			for _, k := range keys[tableIndex] {
+				q := bucketDbmd.NewKeywordQueryShares(k, 2, hashKeyBits)
 				qA[k] = q[0]
 				qB[k] = q[1]
 			}
