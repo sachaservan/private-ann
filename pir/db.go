@@ -118,26 +118,34 @@ func (db *Database) PrivateSecretSharedQueryWithExpandedBits(query *QueryShare, 
 // start: index of start key
 // stop: index of end key
 func (db *Database) ExpandSharedQuery(query *QueryShare, start, stop int) []field.FP {
-	// init server DPF
-	pf := dpfc.ServerInitialize(query.PrfKey)
 
-	bits := make([]field.FP, db.DBSize)
-
-	// expand the DPF into the bits array
-	for i := start; i < stop; i++ {
-		// key (index or uint) depending on whether
-		// the query is keyword based or index based
-		// when keyword based use FSS
-		var key uint64
-		if query.IsKeywordBased {
-			key = db.Keywords[i]
-		} else {
-			key = uint64(i)
-		}
-
-		bits[i] = pf.Evaluate(query.DPFKey, key)
+	if start >= stop {
+		panic("can't evaluate on invalid keyword range")
 	}
 
+	// init server DPF
+	pf := dpfc.ServerDPFInitialize(query.PrfKey)
+
+	bits := make([]field.FP, stop-start)
+
+	// expand the DPF into the bits array
+	// key (index or uint) depending on whether
+	// the query is keyword based or index based
+	// when keyword based use FSS
+	var indices []uint64
+	if query.IsKeywordBased {
+		indices = db.Keywords[start:stop]
+	} else {
+		indices = make([]uint64, stop-start)
+		for i := 0; i < start-stop; i++ {
+			indices[i] = uint64(i)
+		}
+	}
+
+	bitsRaw := pf.BatchEval(query.DPFKey, indices)
+	for i := 0; i < start-stop; i++ {
+		bits[i] = field.FP(bitsRaw[i])
+	}
 	return bits
 }
 

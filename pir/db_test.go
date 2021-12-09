@@ -13,6 +13,7 @@ import (
 // test configuration parameters
 const TestDBSize = 1 << 14
 const BenchmarkDBSize = 1 << 20
+const RangeSize = 20
 
 const SlotBytes = 3
 const SlotBytesStep = 5
@@ -32,8 +33,8 @@ func TestSharedQuery(t *testing.T) {
 	db := GenerateRandomDB(TestDBSize, SlotBytes)
 
 	for i := 0; i < NumQueries; i++ {
-		qIndex := rand.Intn(db.DBSize)
-		shares := db.NewIndexQueryShares(qIndex, 2)
+		qIndex := uint64(rand.Intn(db.DBSize))
+		shares := db.NewIndexQueryShares(qIndex, 2, RangeSize)
 
 		resA, err := db.PrivateSecretSharedQuery(shares[0])
 		if err != nil {
@@ -73,8 +74,9 @@ func BenchmarkBuildDB(b *testing.B) {
 func BenchmarkQuerySecretShares(b *testing.B) {
 	setup()
 
+	rangeSize := uint(20)
 	db := GenerateRandomDB(BenchmarkDBSize, SlotBytes)
-	queryA := db.NewIndexQueryShares(0, 2)[0]
+	queryA := db.NewIndexQueryShares(0, 2, rangeSize)[0]
 
 	b.ResetTimer()
 
@@ -90,13 +92,14 @@ func BenchmarkQuerySecretShares(b *testing.B) {
 func BenchmarkQueryGen(b *testing.B) {
 	setup()
 
+	rangeSize := uint(20)
 	db := GenerateRandomDB(BenchmarkDBSize, SlotBytes)
 
 	b.ResetTimer()
 
 	// benchmark index build time
 	for i := 0; i < b.N; i++ {
-		db.NewIndexQueryShares(0, 2)
+		db.NewIndexQueryShares(0, 2, rangeSize)
 	}
 }
 

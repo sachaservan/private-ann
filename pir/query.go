@@ -21,25 +21,25 @@ type BatchQueryShare struct {
 }
 
 // NewIndexQueryShares generates PIR query shares for the index
-func (dbmd *DBMetadata) NewIndexQueryShares(index int, numShares uint) []*QueryShare {
-	return dbmd.newQueryShares(index, numShares, true)
+func (dbmd *DBMetadata) NewIndexQueryShares(index uint64, numShares uint, rangeBits uint) []*QueryShare {
+	return dbmd.newQueryShares(index, numShares, true, rangeBits)
 }
 
 // NewKeywordQueryShares generates keyword-based PIR query shares for keyword
-func (dbmd *DBMetadata) NewKeywordQueryShares(keyword int, numShares uint) []*QueryShare {
-	return dbmd.newQueryShares(keyword, numShares, false)
+func (dbmd *DBMetadata) NewKeywordQueryShares(keyword uint64, numShares uint, rangeBits uint) []*QueryShare {
+	return dbmd.newQueryShares(keyword, numShares, false, rangeBits)
 }
 
 // NewQueryShares generates random PIR query shares for the index
-func (dbmd *DBMetadata) newQueryShares(key int, numShares uint, isIndexQuery bool) []*QueryShare {
+func (dbmd *DBMetadata) newQueryShares(key uint64, numShares uint, isIndexQuery bool, rangeBits uint) []*QueryShare {
 
 	if numShares != 2 {
 		panic("only two-server DPF supported")
 	}
 
-	client := dpfc.ClientInitialize()
+	client := dpfc.ClientDPFInitialize()
 
-	keyA, keyB := client.GenerateKeys(uint64(key))
+	keyA, keyB := client.GenDPFKeys(key, rangeBits)
 
 	shares := make([]*QueryShare, numShares)
 	for i := 0; i < int(numShares); i++ {
