@@ -1,4 +1,4 @@
-package dpf
+package dpfc
 
 // Testing in C the time goes from 7 to 4 seconds for 1000000 with the O3 flag
 // Since cgo removes all optimization flags we first compile a (optimized) static library and then link it
