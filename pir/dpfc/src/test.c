@@ -9,17 +9,16 @@
 #include "../include/dpf.h"
 
 #define EVALSIZE 1 << 20
-#define EVALDOMAIN 20
+#define EVALDOMAIN 64
 #define FULLEVALDOMAIN 20
 #define MAXRANDINDEX 1ULL << FULLEVALDOMAIN
-#define FIELDSIZE 2
 
 uint64_t randIndex() {
-    srand(time(NULL));
     return ((uint64_t)rand()) % (MAXRANDINDEX);
 }
 
 void testDPF() {
+    srand(time(NULL));
     int size = EVALDOMAIN;
     uint64_t secretIndex = randIndex();
     uint8_t* key = malloc(16);
@@ -76,53 +75,6 @@ void testDPF() {
     free(X);
     printf("DONE\n\n");
     //************************************************
-   
-    //************************************************
-    // Test full domain evaluation
-    //************************************************    
-
-    size = FULLEVALDOMAIN; // evaluation will result in 2^size points 
-    int outl = 1 << size;
-    secretIndex = randIndex();
-    k0 = malloc(INDEX_LASTCW + 16);
-    k1 = malloc(INDEX_LASTCW + 16);
-    genDPF(ctx, size, secretIndex, k0, k1);
-
-    // printf("Full domain = %i\n", outl);
-
-    shares0 = malloc(sizeof(uint128_t) * outl);
-    shares1 = malloc(sizeof(uint128_t) * outl);
-    
-    t = clock();
-    fullDomainDPF(ctx, size, false, k0, (uint8_t*)shares0);
-    t = clock() - t;
-    time_taken = ((double)t) / (CLOCKS_PER_SEC / 1000.0); // ms 
-    
-    fullDomainDPF(ctx, size, true, k1, (uint8_t*)shares1);
-
-    printf("Full-domain eval time (total) %f ms\n",time_taken);
-
-    if (((shares0[secretIndex] + shares1[secretIndex]) % FIELDSIZE) != 1) {
-        printf("FAIL (zero)\n");
-        exit(0);
-    }
-
-    for (size_t i = 0; i < outl; i++) {
-        if (i == secretIndex) 
-            continue;
-
-        if (((shares0[i] + shares1[i]) % FIELDSIZE) != 0) {
-            printf("FAIL (non-zero)\n");
-            exit(0);
-        }
-    }
-   
-    destroyContext(ctx);
-    free(k0);
-    free(k1);
-    free(shares0);
-    free(shares1);
-    printf("DONE\n\n");
 }
 
 

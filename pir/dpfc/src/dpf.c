@@ -9,16 +9,17 @@
 #include "../include/dpf.h"
 #include <openssl/rand.h>
 
+static inline uint128_t convert(uint128_t raw) {
+	uint128_t r = raw & FIELDMASK;
+	return r < FIELDSIZE ? r : r - FIELDSIZE;
+}
+
 static inline uint128_t reverse_lsb(uint128_t input) {
 	return input ^ 1;
 }
 
 static inline uint128_t lsb(uint128_t input) {
     return input & 1;
-}
-
-static inline uint8_t seed_lsb(uint128_t input) {
-    return (input & 2) >> 1;
 }
 
 static inline uint128_t set_lsb_zero(uint128_t input) {
@@ -32,6 +33,29 @@ static inline uint128_t set_lsb_zero(uint128_t input) {
 
 static inline int getbit(uint128_t x, int size, int b) {
 	return ((x) >> (size - b)) & 1;
+}
+
+static inline uint128_t negate(uint128_t x) {
+	return x != 0 ? ((uint128_t)FIELDSIZE) - x : 0;
+}
+
+static inline uint128_t modAfterAdd(uint128_t r) {
+	return r < FIELDSIZE ? r : r - ((uint128_t)FIELDSIZE);
+}
+
+static inline uint128_t dpf_reverse_lsb(uint128_t input){
+    uint128_t xor = 1;
+	return input ^ xor;
+}
+
+static inline uint128_t dpf_set_lsb_zero(uint128_t input){
+    int lsb = input & 1;
+
+	if(lsb == 1){
+		return dpf_reverse_lsb(input);
+	}else{
+		return input;
+	}
 }
 
 static void printBytes(void* p, int num) {
@@ -107,8 +131,8 @@ void dpfPRG(EVP_CIPHER_CTX *ctx, uint128_t input, uint128_t* output1, uint128_t*
 	*bit1 = lsb(stash[0]);
 	*bit2 = lsb(stash[1]);
 
-	*output1 = set_lsb_zero(stash[0]);
-	*output2 = set_lsb_zero(stash[1]);
+	*output1 = dpf_set_lsb_zero(stash[0]);
+	*output2 = dpf_set_lsb_zero(stash[1]);
 }
 
 
@@ -172,9 +196,13 @@ void genDPF(EVP_CIPHER_CTX *ctx, int size, uint64_t index, unsigned char* k0, un
 		}
 	}
 
-  	uint128_t sFinal0 = seeds0[size];
-	uint128_t sFinal1 = seeds1[size];
-	uint128_t lastCW = 1 ^ sFinal0 ^ sFinal1;
+  	uint128_t sFinal0 = convert(seeds0[size]);
+	uint128_t sFinal1 = convert(seeds1[size]);
+	uint128_t lastCW = modAfterAdd(1 + negate(sFinal0) + sFinal1);
+
+	if (bits1[size] == 1) {
+        lastCW = negate(lastCW);
+    }
 	
 	k0[0] = 0;
 	memcpy(&k0[1], seeds0, 16);
@@ -206,22 +234,35 @@ void batchEvalDPF(
 	uint128_t sCW[size+1];
 	int tCW0[size];
 	int tCW1[size];
-	
+
+	memcpy(&seeds[0], &k[1], 16);
+	bits[0] = b;
+
+	for(int i = 1; i <= size; i++){
+		memcpy(&sCW[i-1], &k[18 * i], 16);
+		tCW0[i-1] = k[18 * i + 16];
+		tCW1[i-1] = k[18 * i + 17];
+	}
+
+	// [optimization]: because we're evaluating a whole batch of 
+	// inputs we can cache the first X layers of the tree to avoid
+	// evaluating the PRG again 
+	int numCacheLayers = 20;
+	int numCachedSeeds = (1 << numCacheLayers);
+	uint128_t *cachedSeeds = malloc(numCachedSeeds * sizeof(uint128_t)); 
+	int *cachedBits = malloc(numCachedSeeds * sizeof(int)); 
+	fullDomainDPF(ctx, numCacheLayers, b, k, cachedSeeds, cachedBits);
+		
 	// outter loop: iterate over all evaluation points 
-	for (int l = 0; l < inl; l++) { 	// parse the key 
+	for (int l = 0; l < inl; l++) { 
 
-		memcpy(&seeds[0], &k[1], 16);
-		bits[0] = b;
-
-		for(int i = 1; i <= size; i++){
-			memcpy(&sCW[i-1], &k[18 * i], 16);
-			tCW0[i-1] = k[18 * i + 16];
-			tCW1[i-1] = k[18 * i + 17];
-		}
+		int idx = in[l] >> (size - numCacheLayers);
+		seeds[numCacheLayers] = cachedSeeds[idx];
+		bits[numCacheLayers] = cachedBits[idx];
 
 		uint128_t sL, sR;
 		int tL, tR;
-		for (int i = 1; i <= size; i++){
+		for (int i = numCacheLayers+1; i <= size; i++){
 			dpfPRG(ctx, seeds[i - 1], &sL, &sR, &tL, &tR);
 
 			if (bits[i-1] == 1){
@@ -238,11 +279,18 @@ void batchEvalDPF(
 			bits[i] = (1-xbit) * tL + xbit * tR;		
 		}
 		
-		uint128_t res = seeds[size];
+		uint128_t res = convert(seeds[size]);
 
 		if (bits[size] == 1) {
 			//correction word
-			res = res ^ (uint128_t)k[INDEX_LASTCW];
+			uint128_t lastCW;
+			memcpy(&lastCW, &k[INDEX_LASTCW], 16);
+			res = modAfterAdd(res + lastCW);
+		}
+
+		if (b == true) {
+			// negate
+			res = negate(res);
 		}
 
 		// copy block to byte output
@@ -252,7 +300,7 @@ void batchEvalDPF(
 
 
 /* Need to allow specifying start and end for dataShare */
-void fullDomainDPF(EVP_CIPHER_CTX *ctx, int size, bool b, unsigned char* k, uint8_t *out){
+void fullDomainDPF(EVP_CIPHER_CTX *ctx, int size, bool b, unsigned char* k, uint128_t *outSeeds, int *outBits){
 
     //dataShare is of size dataSize
     int numLeaves = 1 << size;
@@ -311,19 +359,10 @@ void fullDomainDPF(EVP_CIPHER_CTX *ctx, int size, bool b, unsigned char* k, uint
         }
     }
 
-	uint128_t *outBlocks = (uint128_t*)out; 
 	for (int i = 0; i < numLeaves; i++) {
         int index = treeSize - numLeaves + i;
-      
-		uint128_t res = seeds[index];
-
-		if (bits[index] == 1) {
-			//correction word
-			res = res ^ ((uint128_t)k[INDEX_LASTCW]);
-		}
-
-		// copy block to byte output
-		outBlocks[i] = res;
+		outSeeds[i] = seeds[index];
+		outBits[i] = bits[index];
     }
 
 	free(bits);
