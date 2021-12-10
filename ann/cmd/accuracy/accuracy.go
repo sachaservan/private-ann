@@ -61,8 +61,9 @@ func main() {
 		PartitionFactor     float64 `default:"1"`
 		Lattice             int     `default:"2"`
 		ApproximationFactor float64 `default:"2"`
-		SequenceType        string  `default:"normal"`
+		SequenceType        string  `default:"normal2"`
 		Mode                string  `default:"train"`
+		HashSize            uint64  `default:"64"`
 
 		// a value large enough such that any translation will be random
 		MaxCoordinateValue int `default:"1000"`
@@ -77,6 +78,7 @@ func main() {
 		Profiling bool `default:"false"`
 	}
 	arg.MustParse(&args)
+	fmt.Printf("%+v\n", args)
 	dataset := args.Dataset
 	numTables := args.Tables
 	numProbes := args.Probes
@@ -84,7 +86,7 @@ func main() {
 	if numProbes > 0 {
 		probeValues[0] = numProbes
 	} else {
-		probeValues = []int{4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1}
+		probeValues = []int{500, 100, 50, 10, 5, 1} //[]int{4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1}
 	}
 	c := args.ApproximationFactor
 
@@ -100,6 +102,7 @@ func main() {
 	}
 	path := strings.Split(args.Dataset, "/")
 	datasetName := path[len(path)-1]
+	fmt.Printf("Read dataset\n")
 
 	var testIndexes, testAnswers []int
 	switch args.Mode {
@@ -146,8 +149,9 @@ func main() {
 	for i := 0; i < len(tables); i++ {
 		hashes[i] = hash.NewMultiLatticeHash(inputDim, 2, radii[i], float64(args.MaxCoordinateValue))
 	}
+	fmt.Printf("Constructed hash functions\n")
 	for i := 0; i < len(tables); i++ {
-		tables[i] = ann.NewHashTable(i)
+		tables[i] = ann.NewHashTable(i, args.HashSize)
 		tables[i].AddAll(hashes[i], data)
 		fmt.Printf("%v: %v\n", radii[i], tables[i].Len())
 	}

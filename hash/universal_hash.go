@@ -9,7 +9,7 @@ import (
 )
 
 // Basic vector universal hash function for the field F_p
-// Output a_1 x_1 + a_2 x_2 + \ldots  mod p.
+// Output a_0 + a_1 x_1 + a_2 x_2 + \ldots  mod p.
 
 type UniversalHash struct {
 	Coefficients []*gmp.Int
@@ -20,7 +20,7 @@ type UniversalHash struct {
 const Prime = 18446744073709551557
 
 func NewUniversalHash(dim int) *UniversalHash {
-	u := &UniversalHash{Coefficients: make([]*gmp.Int, dim)}
+	u := &UniversalHash{Coefficients: make([]*gmp.Int, dim+1)}
 	u.Modulus = new(gmp.Int).SetUint64(Prime)
 	for i := range u.Coefficients {
 		rBytes := make([]byte, 8)
@@ -38,14 +38,14 @@ func NewUniversalHash(dim int) *UniversalHash {
 }
 
 func (u *UniversalHash) Hash(v *vec.Vec) uint64 {
-	if v.Size() != len(u.Coefficients) {
+	if v.Size()+1 != len(u.Coefficients) {
 		panic("Universal hash size mismatch")
 	}
 	t := new(gmp.Int)
-	s := new(gmp.Int)
+	s := new(gmp.Int).Set(u.Coefficients[0])
 	for i, f := range v.Coords {
 		t.SetUint64(math.Float64bits(f))
-		s = s.AddMul(u.Coefficients[i], t)
+		s = s.AddMul(u.Coefficients[i+1], t)
 	}
 	s = s.Mod(s, u.Modulus)
 	return s.Uint64()

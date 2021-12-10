@@ -96,22 +96,24 @@ func GetNormalSequence3(min, max float64, numTables int) ([]float64, float64, fl
 
 type HashTable struct {
 	table  int
+	mask   uint64
 	hashes map[uint64][]uint32
 	mu     sync.Mutex
 }
 
-func NewHashTable(table int) *HashTable {
-	return &HashTable{table: table, hashes: make(map[uint64][]uint32)}
+func NewHashTable(table int, numBits uint64) *HashTable {
+	mask := (uint64(1) << numBits) - uint64(1)
+	return &HashTable{table: table, hashes: make(map[uint64][]uint32), mask: mask}
 }
 
-func ComputeHashes(n int, h hash.Hash, data []*vec.Vec) ([]uint64, []field.FP) {
-	table := NewHashTable(n)
+func ComputeHashes(n int, h hash.Hash, data []*vec.Vec, numBits uint64) ([]uint64, []field.FP) {
+	table := NewHashTable(n, numBits)
 	table.AddAll(h, data)
 	return convertAndCap(table.hashes)
 }
 
 func (t *HashTable) AddAll(h hash.Hash, data []*vec.Vec) {
-	numThreads := runtime.GOMAXPROCS(0)
+	numThreads := runtime.NumCPU()
 	sections := hash.Spans(len(data), numThreads)
 	errs := make(chan error)
 	for i := 0; i < numThreads; i++ {
@@ -120,6 +122,7 @@ func (t *HashTable) AddAll(h hash.Hash, data []*vec.Vec) {
 			for row := sections[i][0]; row < sections[i][1]; row++ {
 				v := data[row]
 				hash := h.Hash(v)
+				hash = hash & t.mask
 				cur := myHashes[hash]
 				myHashes[hash] = append(cur, uint32(row))
 				// to give some sense of progress
@@ -169,5 +172,6 @@ func convertAndCap(hashTable map[uint64][]uint32) ([]uint64, []field.FP) {
 }
 
 func (t *HashTable) Get(h uint64) []uint32 {
+	h = h & t.mask
 	return t.hashes[h]
 }
