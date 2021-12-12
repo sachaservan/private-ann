@@ -21,7 +21,6 @@ var args struct {
 	ServerPorts         []string
 	SecurityBits        int    `default:"1024"`  // e.g., 1024 RSA security; 128 for secret-sharing security
 	SingleServer        bool   `default:"false"` // use single server encrypted cPIR
-	HashRangeBits       int    `default:"64"`    // size of universal hashing range
 	ExperimentNumTrials int    `default:"1"`     // number of times to run this experiment configuration
 	ExperimentSaveFile  string `default:"output.json"`
 	EvaluateProfileHash bool   `default:"false"` // run client server protocol to compute hash of client's profile
@@ -80,7 +79,7 @@ func main() {
 			cli.SessionParams.NumTables*cli.SessionParams.NumProbes,
 			cli.SessionParams.NumTables)
 
-		cli.PrivateANNQuery(keys, uint(args.HashRangeBits))
+		cli.PrivateANNQuery(keys)
 
 		queryTime := time.Since(start).Milliseconds()
 		cli.Experiment.QueryClientMS = append(cli.Experiment.QueryClientMS, queryTime)

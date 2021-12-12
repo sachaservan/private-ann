@@ -38,6 +38,7 @@ type ServerArgs struct {
 	CacheDir              string  `default:"../cache"`
 	NumTables             int     `default:"10"`
 	NumProbes             int     `default:"100"`
+	HashFunctionRange     int     `default:"64"`
 	ProjectionWidthMean   float64 `default:"887.7"`
 	ProjectionWidthStddev float64 `default:"244.9"`
 	MaxCoordinateValue    int     `default:"1000"`

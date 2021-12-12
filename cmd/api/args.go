@@ -63,5 +63,6 @@ type SessionParameters struct {
 	NumProbes           int               // number of bucket probes per table
 	TestQuery           *vec.Vec          // a test query to use in the evaluation
 	HashFunctions       []hash.Hash       // hash functions the client uses to compute keys
+	HashFunctionRange   int               // range (in bits) of the hash function output
 	TableBucketMetadata []*pir.DBMetadata // PIR db metadata for table buckets
 }

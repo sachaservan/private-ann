@@ -79,6 +79,7 @@ func (client *Client) InitSession() {
 		NumProbes:           res.NumProbes,
 		TestQuery:           res.TestQuery,
 		HashFunctions:       res.HashFunctions,
+		HashFunctionRange:   res.HashFunctionRange,
 		TableBucketMetadata: res.TableBucketMetadata,
 	}
 
@@ -95,7 +96,7 @@ func (client *Client) InitSession() {
 // keys from each table and returns the first non-zero candidate.
 // keys: (NumTables, NumProbes) array keys to probe in each table
 // keywordBits: size of each keyword (DPF bits)
-func (client *Client) PrivateANNQuery(keys [][]uint64, hashKeyBits uint) int {
+func (client *Client) PrivateANNQuery(keys [][]uint64) int {
 
 	var wg sync.WaitGroup
 
@@ -117,7 +118,7 @@ func (client *Client) PrivateANNQuery(keys [][]uint64, hashKeyBits uint) int {
 
 			bucketDbmd := client.SessionParams.TableBucketMetadata[tableIndex]
 			for _, k := range keys[tableIndex] {
-				q := bucketDbmd.NewKeywordQueryShares(k, 2, hashKeyBits)
+				q := bucketDbmd.NewKeywordQueryShares(k, 2, uint(client.SessionParams.HashFunctionRange))
 				qA[k] = q[0]
 				qB[k] = q[1]
 			}
