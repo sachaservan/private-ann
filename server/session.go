@@ -28,6 +28,7 @@ func (server *Server) InitSession(args api.InitSessionArgs, reply *api.InitSessi
 
 	reply.SessionID = sessionID
 	reply.HashFunctions = server.HashFunctions
+	reply.HashFunctionRange = server.HashFunctionRange
 	reply.TableBucketMetadata = dbmd
 	reply.NumProbes = server.NumProbes
 	reply.NumTables = server.NumTables

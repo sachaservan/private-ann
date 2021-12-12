@@ -19,11 +19,12 @@ type Server struct {
 	DBSize      int
 
 	// PIR databases containing the LSH tables
-	TableDBs      []*pir.Database
-	NumTables     int         // number of tables in total
-	NumProbes     int         // number of probes performed per table
-	TestQuery     *vec.Vec    // query that the client can use to test
-	HashFunctions []hash.Hash // LSH hash functions used to make the tables
+	TableDBs          []*pir.Database
+	NumTables         int         // number of tables in total
+	NumProbes         int         // number of probes performed per table
+	TestQuery         *vec.Vec    // query that the client can use to test
+	HashFunctions     []hash.Hash // LSH hash functions used to make the tables
+	HashFunctionRange int         // range size of the universal hash function (in bits)
 
 	NumProcs int // num processors to use
 	Listener net.Listener
