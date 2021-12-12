@@ -82,12 +82,13 @@ func main() {
 
 	// init the server
 	serv := &server.Server{
-		NumProcs:    args.NumProcs,
-		Ready:       false,
-		DatasetName: filepath.Base(args.Dataset),
-		NumTables:   args.NumTables,
-		NumProbes:   args.NumProbes,
-		CacheDir:    args.CacheDir,
+		NumProcs:          args.NumProcs,
+		Ready:             false,
+		DatasetName:       filepath.Base(args.Dataset),
+		NumTables:         args.NumTables,
+		NumProbes:         args.NumProbes,
+		CacheDir:          args.CacheDir,
+		HashFunctionRange: args.HashFunctionRange,
 	}
 
 	serverPort := "8000"
@@ -201,7 +202,7 @@ func readOrConstructCache(serv *server.Server, args *ServerArgs) ([]*CachedHashT
 			values := make([][]field.FP, serv.NumTables)
 			cachedFilename = getCachedHashTableFilename(serv.DatasetName, serv.NumTables, serv.CacheDir, i)
 			// cached table does not exist
-			keys[i], values[i] = ann.ComputeHashes(i, hashes[i], trainingData)
+			keys[i], values[i] = ann.ComputeHashes(i, hashes[i], trainingData, uint64(serv.HashFunctionRange))
 			cachedTables[i] = &CachedHashTable{
 				Dimension: trainingData[0].Size(),
 				N:         len(trainingData),
