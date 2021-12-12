@@ -6,6 +6,7 @@ usage() {
     [--dataset <dataset name>] 
     [--cachedir <cache directory>] 
     [--numtables <num tables>] 
+    [--hashrange <hash range bits>]
     [--numprobes <num probes>] 
     [--bucketcap <max bucket size>]
     [--maxval <max coordinate value>] 
@@ -41,6 +42,11 @@ case $key in
     ;;
     --numtables)
     NUMTABLES="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    --hashrange)
+    HASHRANGE="$2"
     shift # past argument
     shift # past value
     ;;
@@ -88,6 +94,7 @@ if  [ -z "${SERVID}" ] ||
     [ -z "${DATASET}" ] || 
     [ -z "${CACHEDIR}" ] || 
     [ -z "${NUMTABLES}" ] || 
+    [ -z "${HASHRANGE}" ] || 
     [ -z "${NUMPROBES}" ] || 
     [ -z "${BUCKETCAP}" ] || 
     [ -z "${MAXVAL}" ] || 
@@ -101,13 +108,14 @@ fi
 echo 'Server ID:  ' ${SERVID}
 echo 'Dataset:    ' ${DATASET}
 echo 'Cache dir:  ' ${CACHEDIR}
-echo 'Num Tables: ' ${NUMTABLES}
-echo 'Num Probes: ' ${NUMPROBES}
+echo 'Num tables: ' ${NUMTABLES}
+echo 'Hash range: ' ${HASHRANGE}
+echo 'Num probes: ' ${NUMPROBES}
 echo 'Bucket cap: ' ${BUCKETCAP}
 echo 'Max value:  ' ${MAXVAL}
-echo 'Proj. Mean: ' ${PWMEAN}
-echo 'Proj. Std:  ' ${PWSTD}
-echo 'Num Procs:  ' ${PROCS}
+echo 'Proj. mean: ' ${PWMEAN}
+echo 'Proj. std:  ' ${PWSTD}
+echo 'Num procs:  ' ${PROCS}
 
 # make sure cache directory exists 
 mkdir -p ${CACHEDIR}
@@ -120,6 +128,7 @@ go build -o ../bin/server ../cmd/server/main.go
     --cachedir ${CACHEDIR} \
     --numtables ${NUMTABLES} \
     --numprobes ${NUMPROBES} \
+    --hashfunctionrange ${HASHRANGE} \
     --projectionwidthmean ${PWMEAN} \
     --projectionwidthstddev ${PWSTD} \
     --maxcoordinatevalue ${MAXVAL} \
