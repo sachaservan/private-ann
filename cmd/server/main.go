@@ -169,8 +169,16 @@ func readOrConstructCache(serv *server.Server, args *ServerArgs) ([]*CachedHashT
 			if err != nil {
 				panic(fmt.Sprintf("error occured when loading cached hash table %v", err))
 			}
+
+			// mask the hash table keys based on the specified number of output bits
+			mask := (uint64(1) << uint64(serv.HashFunctionRange)) - uint64(1)
+			for j := 0; j < len(cachedTables[i].Keys); j++ {
+				cachedTables[i].Keys[j] = cachedTables[i].Keys[j] & mask
+			}
+
 			log.Printf("[Server]: loaded cached table %v \n", cachedFilename)
 		}
+
 		serv.DBSize = cachedTables[0].N
 		inputDim = cachedTables[0].Dimension
 	}
@@ -181,7 +189,7 @@ func readOrConstructCache(serv *server.Server, args *ServerArgs) ([]*CachedHashT
 		var err2 error
 		trainingData, testQueries, _, err2 = ann.ReadDataset(args.Dataset)
 		if err2 != nil {
-			panic(err)
+			panic(err2)
 		}
 		serv.DBSize = len(trainingData)
 		inputDim = trainingData[0].Size()
