@@ -119,10 +119,10 @@ func (client *Client) PrivateANNQuery(keys [][]uint64) int {
 			qB := make([]*pir.QueryShare, len(keys[tableIndex]))
 
 			bucketDbmd := client.SessionParams.TableBucketMetadata[tableIndex]
-			for _, k := range keys[tableIndex] {
+			for i, k := range keys[tableIndex] {
 				q := bucketDbmd.NewKeywordQueryShares(k, 2, uint(client.SessionParams.HashFunctionRange))
-				qA[k] = q[0]
-				qB[k] = q[1]
+				qA[i] = q[0]
+				qB[i] = q[1]
 			}
 
 			// batch query for server A
