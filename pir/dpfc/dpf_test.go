@@ -53,18 +53,24 @@ func TestCorrectPointFunctionTwoServer(t *testing.T) {
 				t.Fatalf("Expected: 0 Got: %v", sum)
 			}
 		}
+
+		server.Free()
+		client.Free()
 	}
 }
 
 func Benchmark2PartyServerInit(b *testing.B) {
 
-	fClient := ClientDPFInitialize()
+	client := ClientDPFInitialize()
 
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		ServerDPFInitialize(fClient.PrfKey)
+		pf := ServerDPFInitialize(client.PrfKey)
+		pf.Free()
 	}
+
+	client.Free()
 }
 
 func Benchmark2Party64BitKeywordEval(b *testing.B) {
@@ -81,6 +87,9 @@ func Benchmark2Party64BitKeywordEval(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		server.BatchEval(keyA, indices)
 	}
+
+	server.Free()
+	client.Free()
 }
 
 func BenchmarkDPFGen(b *testing.B) {
@@ -92,4 +101,6 @@ func BenchmarkDPFGen(b *testing.B) {
 		client.GenDPFKeys(1, 256)
 
 	}
+
+	client.Free()
 }

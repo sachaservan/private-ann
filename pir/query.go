@@ -55,6 +55,8 @@ func (dbmd *DBMetadata) newQueryShares(key uint64, numShares uint, isIndexQuery 
 		}
 	}
 
+	client.Free()
+
 	return shares
 }
 

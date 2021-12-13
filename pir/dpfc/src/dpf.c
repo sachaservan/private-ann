@@ -9,10 +9,6 @@
 #include "../include/dpf.h"
 #include <openssl/rand.h>
 
-static uint8_t* randKey = NULL;//(uint8_t*) malloc(16);
-static EVP_CIPHER_CTX* randCtx;
-static uint128_t counter = 0;
-
 static inline uint128_t convert(uint128_t raw) {
 	uint128_t r = raw & FIELDMASK;
 	return r < FIELDSIZE ? r : r - FIELDSIZE;
@@ -81,32 +77,13 @@ EVP_CIPHER_CTX* getDPFContext(uint8_t* key) {
 }
 
 void destroyContext(EVP_CIPHER_CTX * ctx) {
-	free(randKey);
  	EVP_CIPHER_CTX_free(ctx);
 }
 
 uint128_t getRandomBlock(){  
-    if (!randKey){
-        randKey = (uint8_t*) malloc(16);
-        
-		if (!(randCtx = EVP_CIPHER_CTX_new()))
-            printf("errors occured in creating context\n");
-        if (!RAND_bytes(randKey, 16)){
-            printf("failed to seed randomness\n");
-        }
-        if (1 != EVP_EncryptInit_ex(randCtx, EVP_aes_128_ecb(), NULL, randKey, NULL))
-            printf("errors occured in randomness init\n");
-       
-	    EVP_CIPHER_CTX_set_padding(randCtx, 0);
-    }
-
- 	int len = 0;
-    uint128_t output = 0;
-    if (1 != EVP_EncryptUpdate(randCtx, (uint8_t*)&output, &len, (uint8_t*)&counter, 16))
-        printf("errors occured in generating randomness\n");
-   
-    counter++;
-    return output;
+    uint128_t randBlock;    
+	RAND_bytes((uint8_t*)&randBlock, 16);
+	return randBlock;
 }
 
 
