@@ -1,9 +1,6 @@
 TARGET = test
 CFLAGS = -O3
 LDFLAGS = -lcrypto -lssl -lm
-# CC = clang-12 #gcc
-# ARCHIVER = llvm-ar #ar
-# AFLAGS = rcs
 
 $(TARGET): test.o libdpf.a
 	$(CC) $^ -o $@ $(LDFLAGS)
