@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math/rand"
 	"testing"
+
+	"github.com/sachaservan/private-ann/pir/field"
 )
 
 const numTrials = 1000
@@ -41,7 +43,7 @@ func TestCorrectPointFunctionTwoServer(t *testing.T) {
 			fmt.Printf("ans0 = %v\n", ans0[i])
 			fmt.Printf("ans1 = %v\n", ans1[i])
 
-			sum := ans0[i] ^ ans1[i]
+			sum := field.Add(field.FP(ans0[i]), field.FP(ans1[i]))
 
 			if uint64(indices[i]) == specialIndex && uint(sum) != 1 {
 				t.Fatalf("Expected: %v Got: %v", 1, sum)
@@ -78,22 +80,6 @@ func Benchmark2Party64BitKeywordEval(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		server.BatchEval(keyA, indices)
-	}
-}
-
-func Benchmark2PartyFullDomainEval(b *testing.B) {
-
-	client := ClientDPFInitialize()
-	keyA, _ := client.GenDPFKeys(1, 20)
-	server := ServerDPFInitialize(client.PrfKey)
-
-	indices := make([]uint64, 1)
-	indices[0] = 1
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		server.FullDomainEval(keyA)
 	}
 }
 

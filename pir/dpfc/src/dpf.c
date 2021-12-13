@@ -247,7 +247,7 @@ void batchEvalDPF(
 	// [optimization]: because we're evaluating a whole batch of 
 	// inputs we can cache the first X layers of the tree to avoid
 	// evaluating the PRG again 
-	int numCacheLayers = 20;
+	int numCacheLayers = 16;
 	int numCached = (1 << numCacheLayers);
 	uint128_t *cachedSeeds = malloc(numCached * sizeof(uint128_t)); 
 	int *cachedBits = malloc(numCached * sizeof(int)); 
