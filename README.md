@@ -118,7 +118,7 @@ You can plot the parameters for each dataset (LSH radii, etc.) using the ```plot
 python plot_radii.py --file ../ann/cmd/parameters/mnist24x10000Data.txt --name mnist --mnist
 python plot_radii.py --file ../ann/cmd/parameters/deep1b24x10000Data.txt --name deep1b
 python plot_radii.py --file ../ann/cmd/parameters/sift24x10000Data.txt --name sift 
-python plot_radii.py --file ../ann/cmd/parameters/gist24x10000Data.txt --name gist 
+python plot_radii.py --file ../ann/cmd/parameters/gist24x10000Data.txt --name gist --maxdist 1.5
 ```
 
 ### Plot hash function accuracy
