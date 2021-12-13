@@ -1,7 +1,9 @@
 # Private Similarity Search
-## Prototype implementation of lightweight private similarity search
+Prototype implementation of the two-server privacy-preserving similarity search protocol with malicious security.
 
-### Reproducing paper experiments 
+**Paper:** https://eprint.iacr.org/2021/1157 (Oakland 2022; to appear)
+
+### Running the experiments
 
 ### Dependencies 
 - GMP Library: On Ubuntu run ```sudo apt-get install libgmp3-dev```.  On yum, ```sudo yum install gmp-devel```.
@@ -10,8 +12,8 @@
 - Make: On Ubuntu run ```sudo apt install make```.  On yum, ```sudo yum install make```.
 
 For optimal performance, you should compile the C code with clang-12 (approximately 10-20 percent faster than the default on some distributions).
-- Clang-12: On Ubuntu run ```sudo apt install clang-12```.
-You'll also need llvm if you use clang.  On yum, ```sudo yum install clang```.
+- Clang-12: On Ubuntu run ```sudo apt install clang-12```.  On yum, ```sudo yum install clang```.
+  - You'll also need llvm if you use clang. 
 - LLVM-AR: On Ubuntu run ```sudo apt install llvm```. On yum, ```sudo yum install llvm```.
 
 ### Datasets 
@@ -24,7 +26,7 @@ For example, ```python dataconv.py deep1b.hdf5``` will output *deep1b_train.csv*
 The bash script argument requires ```DATASET_PATH``` point to the directory where these three files are located as well as the dataset name predix. 
 For example, to run the server on the *deep1b* data, set```DATASET_PATH=/home/user/datasets/deep1b``` (note the lack of suffix in the dataset file name).
 The code will automatically locate and use the training data to build the data structure and the test data as "queries" issued by clients. 
-
+Note that generating the hash tables for the first time can take a while; we recommend caching the results. 
 
 ### Running the servers 
 Both servers must have access to the same datasets so that they can locally compute the necessary data structure. 
@@ -33,7 +35,7 @@ There is one script per dataset.
 Each script will cycle through all experimental configurations (e.g., number of hash tables, number of probes, etc.).
 
 #### On each server machine
-0. Set the C compiler to the corresponding compiler for cgo compilation.
+0. (optional) Set the C compiler to the corresponding compiler for cgo compilation.
 
 ```
 export CC=clang-12
@@ -72,9 +74,11 @@ bash clicycle.sh
 ```
 which will spin up a new client once the servers have initialized the new experiment configuration.
 
-### Finding dataset parameters
+### Finding dataset parameters (Optional)
+Note that all paramters are already pre-computed (located in ```/ann/cmd/meanAndStd/```).
+However, follow the below steps if you would like to recompute or change the way the dataset parameters are generated. 
 
-First go to the parameters directory
+First go to the parameters directory 
 ```
 cd ann/cmd/parameters
 go build
@@ -106,12 +110,40 @@ Sequence type provides slightly different options for computing the radii.
 The test.py python file contains the parameters used to run the experiments.
 
 
+
+## Plotting! 
+### Plot the LSH radii and vector distribution of each dataset. 
+You can plot the parameters for each dataset (LSH radii, etc.) using the ```plot_radii.py``` script.
+```
+python plot_radii.py --file ../ann/cmd/meanAndStd/[PARAMS].txt --name [DATASET NAME] 
+```
+
+### Plot hash function accuracy
+You can download the results of all accuracy experiments (zip file) from the following Google Drive link:
+https://drive.google.com/file/d/1QesFyugFxpvMp7rImgizv3J5zlve-MNs/view?ts=61b77814
+
+```
+unzip results.zip
+mv acc_plot.py results 
+cd results 
+python acc_plot.py
+```
+
+### Plot latency 
+You can download the results of all latency experiments (zip file) from the following Google Drive link:
+TODO 
+
+### Plot PBC overheads 
+TODO
+
+
+
 ## Important Warning
 This implementation is intended as a proof-of-concept prototype only! The code was implemented for research purposes and has not been vetted by security experts. As such, no portion of the code should be used in any real-world or production setting!
 
 
 ## Acknowledgements 
-* Simon Langowski is a co-contributor to the implementation. 
+* Simon Langowski is a co-contributor to the LSH and DPF implementations. 
 * Parts of the DPF code are based on the C implementation of the [Dory](https://github.com/ucbrise/dory/tree/master/src/c) system.
 
 
