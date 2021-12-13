@@ -110,37 +110,29 @@ func (client *Client) PrivateANNQuery(keys [][]uint64) int {
 	}
 
 	for i := 0; i < client.SessionParams.NumTables; i++ {
-		wg.Add(1)
-		go func(tableIndex int) {
-			defer wg.Done()
+		tableIndex := i
+		// one query per "probe" in the ith table
+		qA := make([]*pir.QueryShare, len(keys[tableIndex]))
+		qB := make([]*pir.QueryShare, len(keys[tableIndex]))
 
-			// one query per "probe" in the ith table
-			qA := make([]*pir.QueryShare, len(keys[tableIndex]))
-			qB := make([]*pir.QueryShare, len(keys[tableIndex]))
+		bucketDbmd := client.SessionParams.TableBucketMetadata[tableIndex]
+		for j, k := range keys[tableIndex] {
+			q := bucketDbmd.NewKeywordQueryShares(k, 2, uint(client.SessionParams.HashFunctionRange))
+			qA[j] = q[0]
+			qB[j] = q[1]
+		}
 
-			bucketDbmd := client.SessionParams.TableBucketMetadata[tableIndex]
-			for i, k := range keys[tableIndex] {
-				q := bucketDbmd.NewKeywordQueryShares(k, 2, uint(client.SessionParams.HashFunctionRange))
-				qA[i] = q[0]
-				qB[i] = q[1]
-			}
+		// batch query for server A
+		batchQueryA := &pir.BatchQueryShare{}
+		batchQueryB := &pir.BatchQueryShare{}
+		batchQueryA.Queries = qA
 
-			// batch query for server A
-			batchQueryA := &pir.BatchQueryShare{}
-			batchQueryB := &pir.BatchQueryShare{}
-			batchQueryA.Queries = qA
+		// batch query for server B
+		batchQueryB.Queries = qB
 
-			// batch query for server B
-			batchQueryB.Queries = qB
-
-			allQueriesA[tableIndex] = batchQueryA
-			allQueriesB[tableIndex] = batchQueryB
-
-		}(i)
+		allQueriesA[tableIndex] = batchQueryA
+		allQueriesB[tableIndex] = batchQueryB
 	}
-
-	// wait until all batch queries are constructed
-	wg.Wait()
 
 	// RPC both servers (in parallel)
 	argsA := &api.ANNQueryArgs{}
@@ -206,12 +198,12 @@ func (client *Client) TerminateSessions() {
 
 	// kill server A
 	if !client.call(ServerA, "Server.TerminateSession", &args, &res) {
-		panic("failed to make RPC call")
+		panic("failed to make RPC call in terminate session")
 	}
 
 	// kill server B
 	if !client.call(ServerB, "Server.TerminateSession", &args, &res) {
-		panic("failed to make RPC call")
+		panic("failed to make RPC call in terminate session")
 	}
 }
 

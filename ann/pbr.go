@@ -52,11 +52,13 @@ type sorter struct {
 	values []field.FP
 }
 
-func ComputeBucketDivisions(numBuckets int, keys []uint64, values []field.FP) ([]int, []int) {
+func ComputeBucketDivisions(numBuckets int, keys []uint64, values []field.FP, hashKeyBits int) ([]int, []int) {
 	// first sort data
 	s := sorter{keys, values}
 	sort.Sort(&s)
-	p := NewPBRBuckets(hash.Prime, uint64(numBuckets))
+
+	mod := uint64(1) << hashKeyBits
+	p := NewPBRBuckets(mod, uint64(numBuckets))
 	starts := make([]int, numBuckets)
 	stops := make([]int, numBuckets)
 	// technically we could use binary search but a linear scan suffices

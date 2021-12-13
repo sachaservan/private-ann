@@ -115,7 +115,7 @@ func main() {
 
 		for i := range serv.TableDBs {
 			table := pir.NewDatabase()
-			starts, stops := ann.ComputeBucketDivisions(serv.NumProbes, tables[i].Keys, tables[i].Values)
+			starts, stops := ann.ComputeBucketDivisions(serv.NumProbes, tables[i].Keys, tables[i].Values, serv.HashFunctionRange)
 
 			var err error
 			err = table.BuildForKeysAndValues(tables[i].Keys, tables[i].Values)
