@@ -9,7 +9,7 @@
 - OpenSSL: On Ubuntu run ```sudo apt-get install libssl-dev```.  On yum, ```sudo yum install openssl-devel```.
 - Make: On Ubuntu run ```sudo apt install make```.  On yum, ```sudo yum install make```.
 
-For optimal performance, you should compile the C code with clang-12 (approximately 10-20 percent faster than the default in some distributions).
+For optimal performance, you should compile the C code with clang-12 (approximately 10-20 percent faster than the default on some distributions).
 - Clang-12: On Ubuntu run ```sudo apt install clang-12```.
 You'll also need llvm if you use clang.  On yum, ```sudo yum install clang```.
 - LLVM-AR: On Ubuntu run ```sudo apt install llvm```. On yum, ```sudo yum install llvm```.
@@ -33,31 +33,31 @@ There is one script per dataset.
 Each script will cycle through all experimental configurations (e.g., number of hash tables, number of probes, etc.).
 
 #### On each server machine
+0. Set the C compiler to the corresponding compiler for cgo compilation.
+
+```
+export CC=clang-12
+```
+
 1. Compile the C DPF library which is used by the Go code. 
 ```
 cd ~/go/src/private-ann/pir/dpfc/src
 make
 ```
 
-2. Set the C compiler to the corresponding compiler for cgo compilation.
-
-```
-export CC=clang-12
-```
-
-3. Download and process the datasets, placing each dataset into ```~/go/src/private-ann/datasets/```.
+2. Download and process the datasets, placing each dataset into ```~/go/src/private-ann/datasets/```.
 
 
 #### On server machine A
 ```
 cd scripts
-bash mnist.sh --sid 0 --procs NUMBER_OF_CORES 
+bash mnist.sh --sid 0 
 ```
 
 #### On server machine B
 ```
 cd scripts
-bash mnist.sh --sid 1 --procs NUMBER_OF_CORES 
+bash mnist.sh --sid 1
 ```
 
 #### Running the client 
