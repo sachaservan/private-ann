@@ -20,6 +20,7 @@ type RuntimeExperiment struct {
 	NumFeatures             int     `json:"num_features"`
 	NumTables               int     `json:"num_tables"`
 	NumProbes               int     `json:"num_probes"`
+	HashFunctionRange       int     `json:"hash_function_range"`
 	NumServerProcs          int     `json:"num_server_procs"`
 	ServerPreprocessingMS   int64   `json:"server_preprocessing_ms"`
 	QueryUpBandwidthBytes   []int64 `json:"query_up_bandwidth_bytes"`
@@ -84,6 +85,7 @@ func (client *Client) InitSession() {
 	}
 
 	client.Experiment.NumProbes = res.NumProbes
+	client.Experiment.HashFunctionRange = res.HashFunctionRange
 	client.Experiment.NumTables = res.NumTables
 	client.Experiment.DatasetName = res.StatsDatasetName
 	client.Experiment.DatasetSize = res.StatsDatasetSize

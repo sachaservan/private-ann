@@ -171,7 +171,7 @@ func readOrConstructCache(serv *server.Server, args *ServerArgs) ([]*CachedHashT
 			}
 
 			// mask the hash table keys based on the specified number of output bits
-			mask := (uint64(1) << uint64(serv.HashFunctionRange)) - uint64(1)
+			mask := (uint64(1) << uint64(args.HashFunctionRange)) - uint64(1)
 			for j := 0; j < len(cachedTables[i].Keys); j++ {
 				cachedTables[i].Keys[j] = cachedTables[i].Keys[j] & mask
 			}
