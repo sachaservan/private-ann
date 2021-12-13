@@ -9,6 +9,10 @@
 #include "../include/dpf.h"
 #include <openssl/rand.h>
 
+static uint8_t* randKey = NULL;//(uint8_t*) malloc(16);
+static EVP_CIPHER_CTX* randCtx;
+static uint128_t counter = 0;
+
 static inline uint128_t convert(uint128_t raw) {
 	uint128_t r = raw & FIELDMASK;
 	return r < FIELDSIZE ? r : r - FIELDSIZE;
@@ -77,15 +81,11 @@ EVP_CIPHER_CTX* getDPFContext(uint8_t* key) {
 }
 
 void destroyContext(EVP_CIPHER_CTX * ctx) {
+	free(randKey);
  	EVP_CIPHER_CTX_free(ctx);
 }
 
-uint128_t getRandomBlock(){
-    static uint8_t* randKey = NULL;//(uint8_t*) malloc(16);
-    static EVP_CIPHER_CTX* randCtx;
-    static uint128_t counter = 0;
-
-   
+uint128_t getRandomBlock(){  
     if (!randKey){
         randKey = (uint8_t*) malloc(16);
         
@@ -247,7 +247,7 @@ void batchEvalDPF(
 	// [optimization]: because we're evaluating a whole batch of 
 	// inputs we can cache the first X layers of the tree to avoid
 	// evaluating the PRG again 
-	int numCacheLayers = 16;
+	int numCacheLayers = 12;
 	int numCached = (1 << numCacheLayers);
 	uint128_t *cachedSeeds = malloc(numCached * sizeof(uint128_t)); 
 	int *cachedBits = malloc(numCached * sizeof(int)); 
@@ -296,6 +296,9 @@ void batchEvalDPF(
 		// copy block to byte output
 		memcpy(&out[l*sizeof(uint128_t)], &res, sizeof(uint128_t));
 	}
+
+	free(cachedSeeds);
+	free(cachedBits);
 }
 
 

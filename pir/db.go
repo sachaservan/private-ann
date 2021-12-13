@@ -146,6 +146,9 @@ func (db *Database) ExpandSharedQuery(query *QueryShare, start, stop int) []fiel
 	for i := 0; i < start-stop; i++ {
 		bits[i] = field.FP(bitsRaw[i])
 	}
+
+	pf.Free()
+
 	return bits
 }
 
