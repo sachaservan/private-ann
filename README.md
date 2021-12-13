@@ -115,7 +115,10 @@ The test.py python file contains the parameters used to run the experiments.
 ### Plot the LSH radii and vector distribution of each dataset. 
 You can plot the parameters for each dataset (LSH radii, etc.) using the ```plot_radii.py``` script.
 ```
-python plot_radii.py --file ../ann/cmd/meanAndStd/[PARAMS].txt --name [DATASET NAME] 
+python plot_radii.py --file ../ann/cmd/parameters/mnist24x10000Data.txt --name mnist --mnist
+python plot_radii.py --file ../ann/cmd/parameters/deep1b24x10000Data.txt --name deep1b
+python plot_radii.py --file ../ann/cmd/parameters/sift24x10000Data.txt --name sift 
+python plot_radii.py --file ../ann/cmd/parameters/gist24x10000Data.txt --name gist 
 ```
 
 ### Plot hash function accuracy
@@ -133,8 +136,10 @@ python acc_plot.py
 You can download the results of all latency experiments (zip file) from the following Google Drive link:
 TODO 
 
-### Plot PBC overheads 
-TODO
+### Plot PBR overheads 
+```
+python pbrsim.py 
+```
 
 
 
