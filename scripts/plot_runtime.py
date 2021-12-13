@@ -7,17 +7,21 @@ from plot_config import * # plot configuration file
 width = 4.5 # default_width
 height = 3.5 # default_height
 
-def plot_runtime(x, y, z, group_labels, group_size, nolegend=False):
+def plot_runtime(x, y, z, group_labels, group_size, nolegend=False, mnist=False):
     ######################## PLOT CODE ########################
     ax = plt.figure().gca()
-    ax.yaxis.grid(color=gridcolor, linestyle=linestyle)
+    ax.yaxis.grid(color=gridcolor, linestyle=linestyle, linewidth=0.5)
+    ax.xaxis.grid(color=gridcolor, linestyle=linestyle, linewidth=0.5)
     fig = matplotlib.pyplot.gcf()
-    fig.set_size_inches(width, height)
+    if mnist:
+        fig.set_size_inches(width * 1.5, height)
+    else:
+        fig.set_size_inches(width, height)
 
     xticks = np.sort(np.unique(x))
 
     secondary_labels = ['Parallelized', '1 CPU']
-    line_styles = ['solid', 'dashed']
+    line_styles = ['solid', 'dashdot']
 
     group_number = 0
     for i in range(0, len(y), group_size): 
@@ -30,7 +34,7 @@ def plot_runtime(x, y, z, group_labels, group_size, nolegend=False):
             marker=markers[0],
             color=colors[group_number],
             lw=linewidth,
-            ls=line_styles[1],
+            ls=line_styles[0],
         )
 
         plt.fill_between(
@@ -50,7 +54,7 @@ def plot_runtime(x, y, z, group_labels, group_size, nolegend=False):
             ls=line_styles[0],
         )
 
-        # compute parallelized time  
+        # compute single core time  
         server_time = z[:,0][i:i+group_size][sort][0] # server time on one table
         num_tables = x[i:i+group_size][sort]
         server_time_single = server_time * num_tables
@@ -58,15 +62,16 @@ def plot_runtime(x, y, z, group_labels, group_size, nolegend=False):
         px = x[i:i+group_size][sort]
         py = other_latency + server_time_single
 
-        # single core plot
-        ax.plot(
-            px, 
-            py, 
-            marker=markers[0],
-            color=colors[group_number],
-            lw=linewidth,
-            ls=line_styles[0],
-        )
+        if args.mnist:
+            # single core plot
+            ax.plot(
+                px, 
+                py, 
+                marker=markers[0],
+                color=colors[group_number],
+                lw=linewidth,
+                ls=line_styles[1],
+            )
         
         group_number += 1
 
@@ -74,18 +79,22 @@ def plot_runtime(x, y, z, group_labels, group_size, nolegend=False):
         ax2 = ax.twinx() # twin ghost axis to overlay
         ax2.plot(np.NaN, np.NaN,     
             label=secondary_labels[0],
-            ls=line_styles[1],
+            ls=line_styles[0],
+            lw=linewidth,
             color='black',
         )
         ax2.plot(np.NaN, np.NaN,     
             label=secondary_labels[1],
-            ls=line_styles[0],
+            ls=line_styles[1],
+            lw=linewidth,
             color='black',
         )
         ax2.get_yaxis().set_visible(False)
 
-        ax.legend(title='Probes',loc='upper left',  edgecolor='white', framealpha=1, fancybox=False)
-        ax2.legend(loc='upper center',  edgecolor='white', framealpha=1, fancybox=False)
+        ax.legend(title='Probes', ncol=2, fancybox=False, loc='upper left', framealpha=0.95, edgecolor=edgecolor)
+        
+        if args.mnist:
+            ax2.legend(loc='upper right', fancybox=False, framealpha=0.95, edgecolor=edgecolor, handlelength=2.5)
 
     ax.set_xticks(xticks)
     return ax
@@ -95,7 +104,8 @@ def plot_runtime(x, y, z, group_labels, group_size, nolegend=False):
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(sys.argv[0])
     argparser.add_argument("--file", type=str, default='')
-    argparser.add_argument("--cap", type=int, default=-1)
+    argparser.add_argument("--cap", type=int, default=4)
+    argparser.add_argument("--mnist", type=bool, nargs='?', const=True, default=False)
     argparser.add_argument("--nolegend", type=bool, nargs='?', const=True, default=False)
 
     args = argparser.parse_args()
@@ -121,6 +131,9 @@ if __name__ == '__main__':
 
     # first we extract the relevent bits 
     for i in range(len(results)):
+
+        if results[i]["num_probes"] == 5 or results[i]["num_probes"] == 50:
+            continue
 
         num_probes.append(results[i]["num_probes"])
         num_tables.append(results[i]["num_tables"])
@@ -178,13 +191,13 @@ if __name__ == '__main__':
     group_labels = np.array([str(i) for i in np.unique(num_probes)])
 
     # plot client end-to-end time 
-    ax = plot_runtime(num_tables, client_latency_ms*MILLI_TO_SECONDS, server_time_ms*MILLI_TO_SECONDS, group_labels, group_size, args.nolegend)
+    ax = plot_runtime(num_tables, client_latency_ms*MILLI_TO_SECONDS, server_time_ms*MILLI_TO_SECONDS, group_labels, group_size, args.nolegend, args.mnist)
     ax.set_xlabel('Number of hash tables')
     ax.set_ylabel('Client latency (seconds)')
     #ax.set_yscale("log", base=10)
     ax.set_ylim(0, ax.get_ylim()[1] * 1.25) # make y axis 25% bigger
     ax.set_title(dataset.upper() + " dataset")
-    # leg = ax.legend(title='Probes', loc="best", framealpha=1, edgecolor=edgecolor)
+
     ax.figure.tight_layout()
     ax.figure.savefig(dataset + '_latency_client.pdf', bbox_inches='tight')
 

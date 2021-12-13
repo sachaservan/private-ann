@@ -10,6 +10,7 @@ import matplotlib.colors as mcolors
 ###########################
 default_width=5
 default_height=3
+EXTRA_SMALL_SIZE = 12
 SMALL_SIZE = 14
 MEDIUM_SIZE = 15
 BIGGER_SIZE = 16
@@ -18,19 +19,26 @@ plt.rc('axes', titlesize=MEDIUM_SIZE)     # fontsize of the axes title
 plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
 plt.rc('xtick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
 plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
-plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+plt.rc('legend', fontsize=EXTRA_SMALL_SIZE)    # legend fontsize
+plt.rc('legend', title_fontsize=EXTRA_SMALL_SIZE)
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 ###########################
 # COLORS
 ###########################
 colors = list([x[1] for x in mcolors.TABLEAU_COLORS.items()])
-colors = ['#0099CC', '#008000', '#955196', '#ff6e54', '#dd5182',  '#003f5c']
+# colors = ['#0099CC', '#008000', '#955196', '#ff6e54', '#dd5182',  '#003f5c']
+colors = list(mcolors.TABLEAU_COLORS.values())
+colors[3] = colors[0]
+tmp = colors[1]
+colors[1] = colors[2]
+colors[2] = tmp
+colors[0] = '#003f5c'
 
 ###########################
 # MARKERS
 ###########################
-markers = ['x',  '.', '2', '+', '3', 's']
+markers = ['', '.',  'x', '2', '+', '3', 's']
 hatches = ['////', '\\\\\\\\', 'xxxx', '//////////', '', '//']
 
 ###########################
@@ -38,13 +46,13 @@ hatches = ['////', '\\\\\\\\', 'xxxx', '//////////', '', '//']
 ###########################
 linestyle = 'dashed'
 gridcolor = 'lightgray'
-linewidth=1
+linewidth=2
 edgecolor='gray'
 
 ###########################
 # MISC
 ###########################
-error_opacity = 0.15
+error_opacity = 0.0
 title_font_size=10
 
 
