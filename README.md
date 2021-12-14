@@ -135,7 +135,7 @@ python acc_plot.py
 ### Plot latency 
 The raw data is available in the ```paper_results``` directory. To plot it, simply run:
 ```
-python plot_runtime.py --file ../paper_results/mnist_results.json --mnist
+python plot_runtime.py --file ../paper_results/mnist_results.json --mnist --cap -1
 python plot_runtime.py --file ../paper_results/deep1b_results.json
 python plot_runtime.py --file ../paper_results/sift_results.json
 python plot_runtime.py --file ../paper_results/gist_results.json
