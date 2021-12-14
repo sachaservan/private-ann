@@ -133,14 +133,18 @@ python acc_plot.py
 ```
 
 ### Plot latency 
-You can download the results of all latency experiments (zip file) from the following Google Drive link:
-TODO 
+The raw data is available in the ```paper_results``` directory. To plot it, simply run:
+```
+python plot_runtime.py --file ../paper_results/mnist_results.json --mnist
+python plot_runtime.py --file ../paper_results/deep1b_results.json
+python plot_runtime.py --file ../paper_results/sift_results.json
+python plot_runtime.py --file ../paper_results/gist_results.json
+```
 
 ### Plot PBR overheads 
 ```
 python pbrsim.py 
 ```
-
 
 
 ## Important Warning
