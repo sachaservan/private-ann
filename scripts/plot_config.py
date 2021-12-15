@@ -26,14 +26,14 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 ###########################
 # COLORS
 ###########################
-colors = list([x[1] for x in mcolors.TABLEAU_COLORS.items()])
 # colors = ['#0099CC', '#008000', '#955196', '#ff6e54', '#dd5182',  '#003f5c']
 colors = list(mcolors.TABLEAU_COLORS.values())
 colors[3] = colors[0]
 tmp = colors[1]
-colors[1] = colors[2]
+colors[0] = colors[2]
 colors[2] = tmp
-colors[0] = '#003f5c'
+colors[1] = "skyblue"
+colors = colors[:5][::-1]
 
 ###########################
 # MARKERS
@@ -52,7 +52,7 @@ edgecolor='gray'
 ###########################
 # MISC
 ###########################
-error_opacity = 0.0
+error_opacity = 0.3
 title_font_size=10
 
 

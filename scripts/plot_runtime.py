@@ -43,6 +43,7 @@ def plot_runtime(x, y, z, group_labels, group_size, nolegend=False, mnist=False)
             y[:,0][i:i+group_size][sort] + y[:,1][i:i+group_size][sort], 
             color=colors[group_number],
             alpha=error_opacity,
+            linewidth=0,
         )
 
         # set the "ghost" labels
@@ -62,7 +63,7 @@ def plot_runtime(x, y, z, group_labels, group_size, nolegend=False, mnist=False)
         px = x[i:i+group_size][sort]
         py = other_latency + server_time_single
 
-        if args.mnist:
+        if mnist:
             # single core plot
             ax.plot(
                 px, 
@@ -91,10 +92,15 @@ def plot_runtime(x, y, z, group_labels, group_size, nolegend=False, mnist=False)
         )
         ax2.get_yaxis().set_visible(False)
 
-        ax.legend(title='Probes', ncol=2, fancybox=False, loc='upper left', framealpha=0.95, edgecolor=edgecolor)
+
+        nc = 2
+        if mnist:
+            nc = 1 # mnist doesn't have 500 probes 
+
+        ax.legend(title='Probes', ncol=nc, fancybox=False, loc='upper left', framealpha=0.95, edgecolor=edgecolor)
         
-        if args.mnist:
-            ax2.legend(loc='upper right', fancybox=False, framealpha=0.95, edgecolor=edgecolor, handlelength=2.5)
+        if mnist:
+            ax2.legend(loc='upper center', fancybox=False, framealpha=0.95, edgecolor=edgecolor, handlelength=2.5)
 
     ax.set_xticks(xticks)
     return ax
@@ -107,8 +113,10 @@ if __name__ == '__main__':
     argparser.add_argument("--cap", type=int, default=4)
     argparser.add_argument("--mnist", type=bool, nargs='?', const=True, default=False)
     argparser.add_argument("--nolegend", type=bool, nargs='?', const=True, default=False)
-
     args = argparser.parse_args()
+
+    if args.mnist:
+        colors = colors[1:]
 
     # read experiment file (expected json)
     with open(args.file, 'r') as myfile:
@@ -132,6 +140,7 @@ if __name__ == '__main__':
     # first we extract the relevent bits 
     for i in range(len(results)):
 
+        # skip these; they don't look good in the plots 
         if results[i]["num_probes"] == 5 or results[i]["num_probes"] == 50:
             continue
 
@@ -164,6 +173,7 @@ if __name__ == '__main__':
         server_time_ms.append([avg, confidence95(std, num_trials)])
 
         num_results += 1        
+
 
     # convert everything to numpy arrays
     num_tables = np.array(num_tables)
