@@ -1,9 +1,23 @@
 # Private Similarity Search
 Prototype implementation of the two-server privacy-preserving similarity search protocol with malicious security.
 
-**Paper:** https://eprint.iacr.org/2021/1157 (Oakland 2022; to appear)
+**Paper:** https://eprint.iacr.org/2021/1157 (IEEE Security and Privacy 2022; to appear)
 
-### Running the experiments
+| **Code organization** ||
+| :--- | :---|
+| [ann/](ann/) | Approximate nearest neighbor data structures|
+| [hash/](hash/) | Locality-sensitive hashing implementation|
+| [pir/](pir/) | PIR implementation in C and Go|
+| [client/](client/) | Client code for networked deployment |
+| [server/](server/) | Server code for network deployment |
+| [cmd/](cmd/) | Main functions for client and servers |
+| [scripts/](scripts/) | Scripts for running the servers, clients, and generating plots |
+| [paper_results/](paper_results/) | Raw evaluation data (.json) used in the paper |
+
+
+
+
+## Running the experiments
 
 ### Dependencies 
 - GMP Library: On Ubuntu run ```sudo apt-get install libgmp3-dev```.  On yum, ```sudo yum install gmp-devel```.
@@ -62,7 +76,7 @@ cd scripts
 bash mnist.sh --sid 1
 ```
 
-#### Running the client 
+### Running the client 
 After configuring ```client.sh``` with the server IP addresses, run
 ```
 bash client.sh
