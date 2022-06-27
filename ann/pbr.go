@@ -9,8 +9,8 @@ import (
 )
 
 type PBRBuckets struct {
-	buckets    [][2]uint64
-	size       uint64
+	Buckets    [][2]uint64
+	Size       uint64
 	Max        uint64
 	NumBuckets int
 }
@@ -30,18 +30,18 @@ func NewPBRBuckets(max uint64, numBuckets uint64) *PBRBuckets {
 		start = end
 	}
 	return &PBRBuckets{
-		buckets:    buckets,
-		size:       skip,
+		Buckets:    buckets,
+		Size:       skip,
 		Max:        max,
 		NumBuckets: int(numBuckets),
 	}
 }
 
 func (p *PBRBuckets) FindBucket(hash uint64) uint64 {
-	guess := hash / p.size
-	if guess >= uint64(len(p.buckets)) || p.buckets[guess][0] > hash {
+	guess := hash / p.Size
+	if guess >= uint64(len(p.Buckets)) || p.Buckets[guess][0] > hash {
 		guess--
-	} else if p.buckets[guess][1] <= hash {
+	} else if p.Buckets[guess][1] <= hash {
 		guess++
 	}
 	return guess
@@ -64,7 +64,7 @@ func ComputeBucketDivisions(numBuckets int, keys []uint64, values []field.FP, ha
 	// technically we could use binary search but a linear scan suffices
 	bucket := 0
 	for i := 0; i < len(keys); i++ {
-		if keys[i] >= p.buckets[bucket][1] {
+		if keys[i] >= p.Buckets[bucket][1] {
 			stops[bucket] = i
 			starts[bucket+1] = i
 			bucket++
@@ -88,8 +88,10 @@ func (s *sorter) Swap(i, j int) {
 }
 
 func ComputeProbes(hashFunction hash.Hash, query *vec.Vec, numPartitions, numProbes int) []uint64 {
+
 	output := make([]uint64, numPartitions)
 	hashes := hashFunction.MultiHash(query, numProbes)
+
 	buckets := NewPBRBuckets(hash.Prime, uint64(numPartitions))
 	used := make([]bool, numPartitions)
 	// hashes (should be) in optimal order so first come first serve
