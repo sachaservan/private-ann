@@ -137,13 +137,13 @@ func (db *Database) ExpandSharedQuery(query *QueryShare, start, stop int) []fiel
 		indices = db.Keywords[start:stop]
 	} else {
 		indices = make([]uint64, stop-start)
-		for i := 0; i < start-stop; i++ {
+		for i := 0; i < stop-start; i++ {
 			indices[i] = uint64(i)
 		}
 	}
 
 	bitsRaw := pf.BatchEval(query.DPFKey, indices)
-	for i := 0; i < start-stop; i++ {
+	for i := 0; i < stop-start; i++ {
 		bits[i] = field.FP(bitsRaw[i])
 	}
 

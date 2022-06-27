@@ -141,7 +141,7 @@ func (client *Client) PrivateANNQuery(keys [][]uint64) int {
 
 	argsB := &api.ANNQueryArgs{}
 	argsB.SessionID = client.SessionParams.SessionID
-	argsB.SecretShared = allQueriesA
+	argsB.SecretShared = allQueriesB
 
 	resA := &api.ANNQueryResponse{}
 	resB := &api.ANNQueryResponse{}

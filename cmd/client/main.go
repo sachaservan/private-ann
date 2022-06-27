@@ -46,6 +46,7 @@ func main() {
 	cli.Experiment.QueryUpBandwidthBytes = make([]int64, 0)
 	cli.Experiment.QueryDownBandwidthBytes = make([]int64, 0)
 
+	hash.Precompute()
 	for i := 0; i < args.ExperimentNumTrials; i++ {
 
 		log.Printf("[Client]: waiting for servers to initialize \n")
