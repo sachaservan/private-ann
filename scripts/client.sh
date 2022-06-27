@@ -13,8 +13,8 @@ mkdir -p ../results
 go build -o ../bin/client ../cmd/client/main.go 
 
 # configure arguments 
-ServerAddrs=("3.19.32.37" "3.19.56.210")
-ServerPorts=(5000 5001)
+ServerAddrs=("localhost" "localhost")
+ServerPorts=(8000 8001)
 AutoCloseClient=true
 ExperimentNumTrials=10
 ExperimentSaveFile="../results/experiment${RANDOM}${RANDOM}.json"

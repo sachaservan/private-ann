@@ -91,9 +91,9 @@ func main() {
 		HashFunctionRange: args.HashFunctionRange,
 	}
 
-	serverPort := "5000"
+	serverPort := "8000"
 	if args.ServerID == 1 {
-		serverPort = "5001"
+		serverPort = "8001"
 	}
 
 	go func(serv *server.Server) {
