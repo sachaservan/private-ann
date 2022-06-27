@@ -48,14 +48,18 @@ func NewLatticeHash(dim int, width, max float64) *LatticeHash {
 func (l *LatticeHash) HashWithDist(v *vec.Vec) (*vec.Vec, float64) {
 	// apply rotation and translation
 	v = l.H.Project(v)
+
 	// apply scaling
 	v = v.Scale(l.Scale)
+
 	// this always returns an integer coordinate of the leech lattice
 	v, dist := LeechLatticeClosestVector(v)
+
 	// lattice points are always the same set of keys
 	// To distinguish between hashes add a random value to the vector
 	// We could also unrotate to return the true closest point
 	v, _ = v.Add(l.H.Offsets)
+
 	return v, dist
 }
 
@@ -63,13 +67,15 @@ func (l *LatticeHash) HashWithDist(v *vec.Vec) (*vec.Vec, float64) {
 func (l *LatticeHash) MultiProbeHashWithDist(v *vec.Vec, probes int) ([]*vec.Vec, []float64) {
 	// apply rotation and translation
 	v = l.H.Project(v)
+
 	// apply scaling
 	v = v.Scale(l.Scale)
 	vs, dists := LeechLatticeClosestVectors(v, probes)
+
 	for i := range vs {
 		vs[i], _ = vs[i].Add(l.H.Offsets)
-
 	}
+
 	return vs, dists
 }
 
@@ -81,9 +87,11 @@ func (l *LatticeHash) Hash(v *vec.Vec) uint64 {
 func (l *LatticeHash) MultiHash(v *vec.Vec, probes int) []uint64 {
 	H, _ := l.MultiProbeHashWithDist(v, probes)
 	hashes := make([]uint64, probes)
+
 	for i := range H {
 		hashes[i] = l.H.UHash.Hash(H[i])
 	}
+
 	return hashes
 }
 

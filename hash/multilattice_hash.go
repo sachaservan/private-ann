@@ -85,12 +85,13 @@ func (m *MultiLatticeHash) MultiProbeHashWithDist(v *vec.Vec, probes int) ([]*ve
 	for i := range permuted {
 		permuted[i] = v.Coord(m.Permutation[i])
 	}
-	Hashes := make([][]*vec.Vec, len(m.Hashes))
+	hashes := make([][]*vec.Vec, len(m.Hashes))
 	sources := make([][]*Element, len(m.Hashes))
 	for i := range m.Hashes {
 		var distances []float64
-		Hashes[i], distances = m.Hashes[i].MultiProbeHashWithDist(vec.NewVec(permuted[m.Spans[i][0]:m.Spans[i][1]]), probes)
+		hashes[i], distances = m.Hashes[i].MultiProbeHashWithDist(vec.NewVec(permuted[m.Spans[i][0]:m.Spans[i][1]]), probes)
 		sources[i] = make([]*Element, len(distances))
+
 		for j, d := range distances {
 			sources[i][j] = &Element{coords: []int{j}, distance: d}
 		}
@@ -102,7 +103,7 @@ func (m *MultiLatticeHash) MultiProbeHashWithDist(v *vec.Vec, probes int) ([]*ve
 	for k, e := range c {
 		hash := make([]float64, 0)
 		for j := range e.coords {
-			hash = append(hash, Hashes[j][e.coords[j]].Coords...)
+			hash = append(hash, hashes[j][e.coords[j]].Coords...)
 		}
 		distances[k] = e.distance
 		output[k] = vec.NewVec(hash)
@@ -111,10 +112,13 @@ func (m *MultiLatticeHash) MultiProbeHashWithDist(v *vec.Vec, probes int) ([]*ve
 }
 
 func (m *MultiLatticeHash) MultiHash(v *vec.Vec, probes int) []uint64 {
+
 	vs, _ := m.MultiProbeHashWithDist(v, probes)
-	Hashes := make([]uint64, probes)
-	for i := range vs {
-		Hashes[i] = m.UHash.Hash(vs[i])
+
+	hashes := make([]uint64, probes)
+	for i := 0; i < len(vs); i++ {
+		hashes[i] = m.UHash.Hash(vs[i])
 	}
-	return Hashes
+
+	return hashes
 }
