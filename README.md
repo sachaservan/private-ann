@@ -1,7 +1,7 @@
-# Private Similarity Search
-Prototype implementation of the two-server privacy-preserving similarity search protocol with malicious security.
+# Private Approximate Nearest Neighbor Search
+Prototype implementation of the two-server privacy-preserving ANN search protocol with malicious security.
 
-**Paper:** https://eprint.iacr.org/2021/1157 (IEEE Security and Privacy 2022; to appear)
+**Paper:** https://eprint.iacr.org/2021/1157 (IEEE Security and Privacy 2022)
 
 | **Code organization** ||
 | :--- | :---|
@@ -171,7 +171,7 @@ This implementation is intended as a proof-of-concept prototype only! The code w
 
 
 ## License
-Copyright © 2021 Sacha Servan-Schreiber and Simon Langowski 
+Copyright © 2022 Sacha Servan-Schreiber and Simon Langowski 
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
