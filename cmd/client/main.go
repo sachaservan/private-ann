@@ -80,7 +80,9 @@ func main() {
 			cli.SessionParams.NumTables*cli.SessionParams.NumProbes,
 			cli.SessionParams.NumTables)
 
-		cli.PrivateANNQuery(keys)
+		candidate := cli.PrivateANNQuery(keys)
+
+		log.Printf("[Client]: ANN result is %v\n", candidate)
 
 		queryTime := time.Since(start).Milliseconds()
 		cli.Experiment.QueryClientMS = append(cli.Experiment.QueryClientMS, queryTime)
