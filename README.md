@@ -138,6 +138,8 @@ python plot_radii.py --file ../ann/cmd/parameters/gist24x10000Data.txt --name gi
 ### Plot hash function accuracy
 You can download the results of all accuracy experiments (zip file) from the following Google Drive link:
 https://drive.google.com/file/d/1vBfVOfjWYn-B5F1xH5_GErr-ZTuLjMfb/view?ts=61b8d3d2
+Alternate download (Dropbox) link:
+https://www.dropbox.com/s/dwwqs6qo4ukituj/results.zip?dl=0
 
 ```
 unzip results.zip
